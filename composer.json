@@ -1,0 +1,47 @@
+{
+    "name": "jalabs/module-sym-search",
+    "description": "Semantic hybrid search for Magento 2 on top of Mirasvit Search Ultimate — adds OpenSearch k-NN vector retrieval blended with BM25 keyword search, with pluggable cloud embedding providers (OpenAI, Gemini, Voyage).",
+    "type": "magento2-module",
+    "license": "proprietary",
+    "keywords": [
+        "magento",
+        "magento2",
+        "search",
+        "semantic-search",
+        "vector-search",
+        "opensearch",
+        "knn",
+        "embeddings",
+        "mirasvit"
+    ],
+    "authors": [
+        {
+            "name": "Johnny Abdelnour",
+            "email": "johnny.abdelnour@antoineonline.com"
+        }
+    ],
+    "require": {
+        "php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
+        "magento/framework": ">=102.0.0",
+        "magento/module-catalog": "*",
+        "magento/module-catalog-search": "*",
+        "magento/module-advanced-search": "*",
+        "magento/module-elasticsearch": "*",
+        "magento/module-open-search": "*",
+        "magento/module-search": "*",
+        "magento/module-store": "*",
+        "magento/module-config": "*",
+        "magento/module-backend": "*"
+    },
+    "suggest": {
+        "mirasvit/module-search-ultimate": "Designed to run on top of Mirasvit Search Ultimate (tested with 2.6.x); the hybrid query plugin layers on top of Mirasvit's keyword ranking. Without it the module still works against the stock OpenSearch engine."
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "JALabs\\SymSearch\\": ""
+        }
+    }
+}

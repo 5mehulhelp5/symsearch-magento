@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <symsearch>
+            <general>
+                <enabled>0</enabled>
+                <storefront_enabled>0</storefront_enabled>
+                <debug>0</debug>
+            </general>
+            <provider>
+                <type>openai</type>
+                <model>text-embedding-3-small</model>
+                <dimensions>512</dimensions>
+            </provider>
+            <indexing>
+                <attributes>name,short_description,description</attributes>
+                <batch_size>96</batch_size>
+                <throttle_ms>2000</throttle_ms>
+            </indexing>
+            <ranking>
+                <keyword_weight>0.7</keyword_weight>
+                <semantic_weight>0.3</semantic_weight>
+                <knn_k>100</knn_k>
+                <min_score>0</min_score>
+                <query_timeout_ms>800</query_timeout_ms>
+            </ranking>
+        </symsearch>
+    </default>
+</config>

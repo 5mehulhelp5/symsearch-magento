@@ -1,0 +1,12 @@
+# Dependencies (a Magento module ships no vendor of its own)
+/vendor/
+
+# Editor / OS cruft
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs / local scratch
+*.log

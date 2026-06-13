@@ -1,0 +1,27 @@
+# JALabs_SymSearch relevance regression suite
+# format: query;expected_skus(pipe-separated, ANY one must appear in top N);topN
+# curated 2026-06-13 against store 13 (EN) with hybrid search live (Gemini embeddings).
+# A row PASSES if at least one expected SKU appears in the top N hybrid results.
+# Anchors are deliberately semantic (a telescope for "loves space", Beirut Blues for
+# "civil war", dinosaur kits for the French query) so a regression in semantic recall
+# is caught even when keyword search would still return generic matches.
+#
+# --- natural language EN (intent, not keywords) ---
+gift for a 7 year old who loves space;5060282510432|9780241412473|9781406381269;10
+books like atomic habits;9781788176576|9798217180509|9781784701178;10
+how to stop procrastinating;9780063224711|9781800814646|9780062672643;10
+bedtime stories for toddlers;9798217031306|9781589255203|9781789899283;10
+learn to draw for beginners;9781782214557|9780399580512|9780500292389;10
+# --- zero-result killers (paraphrase / no shared tokens with titles) ---
+self improvement habit building;9780753553244|9781984877451|9781035042135;10
+novels about lebanese civil war;9780385473828|9781838607067|9780814706152;10
+# --- cross-language FR query -> mostly-EN catalogue ---
+cadeau pour enfant qui aime les dinosaures;9782492898198|9782017893820|9789403233857;10
+livre de cuisine libanaise;9786144382844|9782749960951|9789953262444;10
+roman policier;9782382849217|9782290068991|9782290130223;10
+# --- cross-language AR query -> EN/AR catalogue ---
+كتب تطوير الذات;9789953064659|9786140137615|9786144299067;10
+قصص اطفال;9786140602380|6281072118877|9786140602427;10
+# --- exact / keyword regression guards (MUST keep passing in keyword-only mode too) ---
+harry potter;3154149041008|9782075196345|9781339035475;5
+atomic habits;9781847941831|9780735211292|9780099598473;3

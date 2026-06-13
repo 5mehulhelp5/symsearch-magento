@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="JALabs\SymSearch\Model\Provider\ProviderResolver">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="openai" xsi:type="object">JALabs\SymSearch\Model\Provider\OpenAiProvider</item>
+                <item name="gemini" xsi:type="object">JALabs\SymSearch\Model\Provider\GeminiProvider</item>
+                <item name="voyage" xsi:type="object">JALabs\SymSearch\Model\Provider\VoyageProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="symsearch_embed_generate" xsi:type="object">JALabs\SymSearch\Console\Command\GenerateCommand</item>
+                <item name="symsearch_embed_status" xsi:type="object">JALabs\SymSearch\Console\Command\StatusCommand</item>
+                <item name="symsearch_pipeline_setup" xsi:type="object">JALabs\SymSearch\Console\Command\PipelineSetupCommand</item>
+                <item name="symsearch_relevance_run" xsi:type="object">JALabs\SymSearch\Console\Command\RelevanceRunCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Elasticsearch\Model\Adapter\FieldMapper\Product\CompositeFieldProvider">
+        <plugin name="jalabsSymsearchAddKnnField" type="JALabs\SymSearch\Plugin\AddKnnFieldToMappingPlugin"/>
+    </type>
+    <type name="Magento\Elasticsearch\Model\Adapter\Index\Builder">
+        <plugin name="jalabsSymsearchKnnSetting" type="JALabs\SymSearch\Plugin\EnableKnnIndexSettingPlugin" sortOrder="200"/>
+    </type>
+    <virtualType name="additionalFieldsProviderForElasticsearch">
+        <arguments>
+            <argument name="fieldsProviders" xsi:type="array">
+                <item name="symsearch_embedding" xsi:type="object">JALabs\SymSearch\Model\AdditionalFieldsProvider\Embedding</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\OpenSearch\SearchAdapter\Mapper">
+        <plugin name="jalabsSymsearchHybridQuery" type="JALabs\SymSearch\Plugin\HybridSearchQueryPlugin" sortOrder="500"/>
+    </type>
+    <type name="Magento\OpenSearch\Model\OpenSearch">
+        <plugin name="jalabsSymsearchSearchPipeline" type="JALabs\SymSearch\Plugin\AddSearchPipelineParamPlugin"/>
+    </type>
+</config>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="index">
+        <job name="jalabs_symsearch_dispatch" instance="JALabs\SymSearch\Cron\Dispatch" method="execute">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+        <job name="jalabs_symsearch_sweep" instance="JALabs\SymSearch\Cron\Sweep" method="execute">
+            <schedule>0 3 * * *</schedule>
+        </job>
+    </group>
+</config>

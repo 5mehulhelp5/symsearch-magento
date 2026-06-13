@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="JALabs_SymSearch">
+        <sequence>
+            <module name="Magento_CatalogSearch"/>
+            <module name="Magento_AdvancedSearch"/>
+            <module name="Magento_Elasticsearch"/>
+            <module name="Magento_OpenSearch"/>
+            <module name="Mirasvit_Search"/>
+            <module name="Mirasvit_SearchElastic"/>
+        </sequence>
+    </module>
+</config>

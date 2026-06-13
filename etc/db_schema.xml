@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="jalabs_symsearch_item" resource="default" engine="innodb" comment="SymSearch per-product embedding status">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store ID"/>
+        <column xsi:type="varchar" name="content_hash" length="40" nullable="true" comment="sha1 of last embedded text"/>
+        <column xsi:type="varchar" name="status" length="16" nullable="false" default="pending" comment="pending|queued|ready|failed"/>
+        <column xsi:type="smallint" name="attempts" unsigned="true" nullable="false" default="0" comment="Failed attempts"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+            <column name="store_id"/>
+        </constraint>
+        <index referenceId="JALABS_SYMSEARCH_ITEM_STORE_ID_STATUS" indexType="btree">
+            <column name="store_id"/>
+            <column name="status"/>
+        </index>
+    </table>
+    <table name="jalabs_symsearch_vector" resource="default" engine="innodb" comment="SymSearch embedding vectors by content hash">
+        <column xsi:type="varchar" name="content_hash" length="40" nullable="false" comment="sha1 of embedded text"/>
+        <column xsi:type="varchar" name="model_version" length="80" nullable="false" comment="provider:model:dimensions"/>
+        <column xsi:type="mediumblob" name="vector" nullable="false" comment="Packed float32 LE vector"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="content_hash"/>
+            <column name="model_version"/>
+        </constraint>
+    </table>
+</schema>

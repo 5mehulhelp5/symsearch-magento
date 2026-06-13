@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="jalabs" translate="label" sortOrder="400">
+            <label>JALabs</label>
+        </tab>
+        <section id="symsearch" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Semantic Search</label>
+            <tab>jalabs</tab>
+            <resource>JALabs_SymSearch::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enable Module (indexing infrastructure)</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Master switch. Adds the vector field to the search index and runs the embedding pipeline.</comment>
+                </field>
+                <field id="storefront_enabled" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Hybrid Search on Storefront</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Per store view. Requires module enabled and embeddings generated.</comment>
+                </field>
+                <field id="debug" translate="label" type="select" sortOrder="30" showInDefault="1">
+                    <label>Debug Logging</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="provider" translate="label" sortOrder="20" showInDefault="1">
+                <label>Embedding Provider</label>
+                <field id="type" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Provider</label>
+                    <source_model>JALabs\SymSearch\Model\Config\Source\Provider</source_model>
+                </field>
+                <field id="api_key" translate="label" type="obscure" sortOrder="20" showInDefault="1">
+                    <label>API Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="model" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Model</label>
+                    <comment>openai: text-embedding-3-small | gemini: gemini-embedding-001 | voyage: voyage-3.5-lite</comment>
+                </field>
+                <field id="dimensions" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Dimensions</label>
+                    <comment>512 recommended. Changing this requires full re-embed + reindex.</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+            </group>
+            <group id="indexing" translate="label" sortOrder="30" showInDefault="1">
+                <label>Indexing</label>
+                <field id="attributes" translate="label comment" type="text" sortOrder="10" showInDefault="1">
+                    <label>Attributes To Embed</label>
+                    <comment>Comma-separated product attribute codes, e.g. name,short_description,description,manufacturer</comment>
+                </field>
+                <field id="batch_size" translate="label" type="text" sortOrder="20" showInDefault="1">
+                    <label>API Batch Size</label>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+                <field id="throttle_ms" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>API Throttle (ms between calls)</label>
+                    <comment>Pause between embedding API calls. Gemini paid tier allows ~3000 texts/min: with batch size 96, 2000ms keeps you under it.</comment>
+                    <validate>validate-number</validate>
+                </field>
+            </group>
+            <group id="ranking" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Ranking</label>
+                <field id="keyword_weight" translate="label comment" type="text" sortOrder="10" showInDefault="1">
+                    <label>Keyword Weight</label>
+                    <comment>Run symsearch:pipeline:setup after changing weights.</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+                <field id="semantic_weight" translate="label" type="text" sortOrder="20" showInDefault="1">
+                    <label>Semantic Weight</label>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+                <field id="knn_k" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>k (nearest neighbours)</label>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+                <field id="min_score" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Min Semantic Score</label>
+                    <comment>0 = disabled</comment>
+                    <validate>validate-number</validate>
+                </field>
+                <field id="query_timeout_ms" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Query Embedding Timeout (ms)</label>
+                    <comment>Minimum 100ms is enforced.</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

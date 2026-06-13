@@ -1,0 +1,29 @@
+{
+    "jalabs_symsearch_item": {
+        "column": {
+            "entity_id": true,
+            "store_id": true,
+            "content_hash": true,
+            "status": true,
+            "attempts": true,
+            "updated_at": true
+        },
+        "index": {
+            "JALABS_SYMSEARCH_ITEM_STORE_ID_STATUS": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "jalabs_symsearch_vector": {
+        "column": {
+            "content_hash": true,
+            "model_version": true,
+            "vector": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}
