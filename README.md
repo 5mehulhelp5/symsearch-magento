@@ -124,4 +124,4 @@ on the product indices so rebuilds keep it off. This affects all searches on
 rebuilt indices, independent of this module.
 
 ## License
-Proprietary — see [LICENSE](LICENSE).
+[OSL-3.0](LICENSE) — Open Software License 3.0 (the standard Magento module license).

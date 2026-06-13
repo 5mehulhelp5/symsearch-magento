@@ -2,7 +2,7 @@
     "name": "jalabs/module-sym-search",
     "description": "Semantic hybrid search for Magento 2 on top of Mirasvit Search Ultimate — adds OpenSearch k-NN vector retrieval blended with BM25 keyword search, with pluggable cloud embedding providers (OpenAI, Gemini, Voyage).",
     "type": "magento2-module",
-    "license": "proprietary",
+    "license": "OSL-3.0",
     "keywords": [
         "magento",
         "magento2",
