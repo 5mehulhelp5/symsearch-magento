@@ -6,6 +6,7 @@ namespace JALabs\SymSearch\Console\Command;
 use JALabs\SymSearch\Model\Config;
 use JALabs\SymSearch\Model\EmbeddingStorage;
 use JALabs\SymSearch\Model\Queue\Dispatcher;
+use JALabs\SymSearch\Model\StaleState;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,7 +17,8 @@ class GenerateCommand extends Command
     public function __construct(
         private readonly Config $config,
         private readonly EmbeddingStorage $storage,
-        private readonly Dispatcher $dispatcher
+        private readonly Dispatcher $dispatcher,
+        private readonly StaleState $staleState
     ) {
         parent::__construct();
     }
@@ -63,6 +65,12 @@ class GenerateCommand extends Command
             $output->writeln("<info>Store $storeId: seeded $seeded new items, dispatched $dispatched to queue.</info>");
         }
         $output->writeln('Run the consumer: bin/magento queue:consumers:start jalabsSymsearchEmbed');
+
+        if ($input->getOption('force')) {
+            $this->staleState->markSynced();
+        } else {
+            $this->staleState->markSyncedIfUnset();
+        }
 
         return Command::SUCCESS;
     }

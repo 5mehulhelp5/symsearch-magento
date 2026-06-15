@@ -93,6 +93,17 @@ After install, follow **Deploy / rollout order** below.
 - `symsearch:pipeline:setup` — create/update the OpenSearch normalization pipeline + verify engine plugins
 - `symsearch:relevance:run <csv> [--store=ID] [--suggest]` — relevance regression suite
 
+## Admin panel (Operations)
+**Stores → Configuration → JALabs → Semantic Search → Operations** — admin equivalents of the
+CLI, for operators without shell access. Shows a per-store coverage table (pending/queued/
+ready/failed/%), the active model version, and pipeline/plugin health, plus four async buttons:
+**Refresh status**, **Generate embeddings** (gap-fill), **Force re-embed** (paid full re-embed;
+confirms, then invalidates `catalogsearch_fulltext` — reindex once coverage recovers), and
+**Refresh / verify pipeline**. Buttons only queue work; the consumer/cron processes it. A
+persistent admin banner appears when embedding settings (attributes/model/dimensions) drift
+from what was last embedded; both the panel's Force re-embed and `symsearch:embed:generate
+--force` clear it. See `docs/USER-GUIDE.md` for details.
+
 ## Deploy / rollout order
 1. Install + `setup:upgrade` (creates tables + queue), keep `enabled=0`.
 2. Set provider API key (admin), set `symsearch/general/enabled=1`.

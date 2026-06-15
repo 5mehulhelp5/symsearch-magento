@@ -1,0 +1,62 @@
+<?php
+/** @var \JALabs\SymSearch\Block\Adminhtml\System\Config\Form\Field\Panel $block */
+?>
+<div class="jalabs-symsearch-panel" style="border:1px solid #d6d6d6;padding:14px;border-radius:4px;background:#fff;max-width:760px;">
+    <div id="symsearch-status">Loading status&hellip;</div>
+    <div id="symsearch-msg" style="margin:10px 0;"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="action-default" id="symsearch-btn-status">Refresh status</button>
+        <button type="button" class="action-default" id="symsearch-btn-generate">Generate embeddings</button>
+        <button type="button" class="action-default scalable" id="symsearch-btn-force">Force re-embed</button>
+        <button type="button" class="action-default" id="symsearch-btn-pipeline">Refresh / verify pipeline</button>
+    </div>
+</div>
+<script>
+require(['jquery'], function ($) {
+    var urls = {
+        status:   '<?= $block->escapeJs($block->getStatusUrl()) ?>',
+        generate: '<?= $block->escapeJs($block->getGenerateUrl()) ?>',
+        force:    '<?= $block->escapeJs($block->getForceUrl()) ?>',
+        pipeline: '<?= $block->escapeJs($block->getPipelineUrl()) ?>'
+    };
+    var fk = window.FORM_KEY;
+    function esc(v) { return $('<span>').text(String(v == null ? '' : v)).html(); }
+
+    function msg(text, ok) {
+        $('#symsearch-msg').html('<div class="message ' + (ok ? 'message-success' : 'message-error') + '">' + esc(text) + '</div>');
+    }
+
+    function renderStatus(d) {
+        if (!d.success) { $('#symsearch-status').html(''); msg(d.message || 'Status error', false); return; }
+        var html = '<table class="data-grid" style="width:100%"><thead><tr>' +
+            '<th>Store</th><th>Pending</th><th>Queued</th><th>Ready</th><th>Failed</th><th>Coverage</th></tr></thead><tbody>';
+        (d.stores || []).forEach(function (s) {
+            html += '<tr><td>' + esc(s.id) + ' &mdash; ' + esc(s.label) + '</td><td>' + esc(s.pending) + '</td><td>' + esc(s.queued) +
+                '</td><td>' + esc(s.ready) + '</td><td>' + esc(s.failed) + '</td><td>' + esc(s.coverage) + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        html += '<p style="margin-top:8px;">Model: <strong>' + esc(d.model_version) + '</strong> &middot; Pipeline: <strong>' +
+            (d.pipeline_ok ? 'OK' : 'NOT READY') + '</strong>';
+        if (d.plugins_missing && d.plugins_missing.length) { html += ' (missing: ' + esc(d.plugins_missing.join(', ')) + ')'; }
+        html += '</p>';
+        $('#symsearch-status').html(html);
+        if (d.stale) { msg('Embedding settings changed since the last generation &mdash; run Force re-embed, then reindex.', false); }
+    }
+
+    function load() { $.get(urls.status, renderStatus); }
+
+    function post(url, confirmText) {
+        if (confirmText && !window.confirm(confirmText)) { return; }
+        $.post(url, { form_key: fk }, function (d) { msg(d.message, !!d.success); load(); }, 'json')
+            .fail(function () { msg('Request failed.', false); });
+    }
+
+    $('#symsearch-btn-status').on('click', load);
+    $('#symsearch-btn-generate').on('click', function () { post(urls.generate); });
+    $('#symsearch-btn-force').on('click', function () {
+        post(urls.force, 'Force re-embed ALL products? This re-runs the embedding API for every product (a paid operation). Continue?');
+    });
+    $('#symsearch-btn-pipeline').on('click', function () { post(urls.pipeline); });
+    load();
+});
+</script>

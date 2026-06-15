@@ -39,4 +39,11 @@
     <type name="Magento\OpenSearch\Model\OpenSearch">
         <plugin name="jalabsSymsearchSearchPipeline" type="JALabs\SymSearch\Plugin\AddSearchPipelineParamPlugin"/>
     </type>
+    <type name="Magento\Framework\Notification\MessageList">
+        <arguments>
+            <argument name="messages" xsi:type="array">
+                <item name="jalabsSymsearchStaleEmbeddings" xsi:type="string">JALabs\SymSearch\Model\AdminNotification\StaleEmbeddings</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

@@ -55,14 +55,14 @@ The two-switch design lets you generate embeddings and reindex with the module
 | **Provider** | OpenAI | `OpenAI`, `Google Gemini`, or `Voyage AI`. (Anthropic has no embeddings API; Voyage is the Anthropic-recommended option.) |
 | **API Key** | — | Stored **encrypted**. Never logged. |
 | **Model** | text-embedding-3-small | `openai`: `text-embedding-3-small` · `gemini`: `gemini-embedding-001` · `voyage`: `voyage-3.5-lite` (or `voyage-4`). |
-| **Dimensions** | 512 | Vector size. **Changing this requires a full re-embed + reindex** (see §6). 512 is a good quality/cost/RAM balance. |
+| **Dimensions** | 512 | Vector size. **Changing this requires a full re-embed + reindex** (see §7). 512 is a good quality/cost/RAM balance. |
 
 ### Indexing
 | Field | Default | Meaning |
 |---|---|---|
 | **Attributes To Embed** | name,short_description,description | Comma-separated product attribute codes. Add e.g. `manufacturer`, author attributes, or category text to enrich the embedded text. Select/dropdown attributes are embedded by their **label**, not the option ID. |
 | **API Batch Size** | 96 | Texts per provider call. |
-| **API Throttle (ms between calls)** | 2000 | Pause between provider calls during bulk generation. Protects against per-minute rate limits. See §5.3. |
+| **API Throttle (ms between calls)** | 2000 | Pause between provider calls during bulk generation. Protects against per-minute rate limits. See §6.3. |
 
 ### Ranking
 | Field | Default | Scope | Meaning |
@@ -134,11 +134,43 @@ bin/magento queue:consumers:start jalabsSymsearchEmbed --max-messages=1800
 ```
 
 (It exits after `--max-messages` messages; loop it, or run several for a big
-backfill. Watch the rate limit — see §5.3.)
+backfill. Watch the rate limit — see §6.3.)
 
 ---
 
-## 5. First-time setup & backfill
+## 5. Admin panel (Operations)
+
+The **Operations** tab at **Stores → Configuration → JALabs → Semantic Search → Operations**
+is the admin-UI equivalent of the CLI commands (§4). Use it when you prefer not to drop into a
+shell.
+
+**Coverage table** — a row per store view showing pending / queued / ready / failed counts and
+coverage %, plus the active model version and a pipeline/plugin health indicator.
+
+**Buttons** — all four are asynchronous: they update database state and return immediately; the
+dispatch cron (every 5 min) and the queue consumer do the actual embedding work.
+
+| Button | What it does |
+|---|---|
+| **Refresh status** | Reloads the coverage table from the database. |
+| **Generate embeddings** | Seeds rows for products that have none, then queues all `pending` items — the gap-fill equivalent of `symsearch:embed:generate`. |
+| **Force re-embed** | Resets **all** products to `pending` and invalidates the `catalogsearch_fulltext` index. Prompts for confirmation (this is a paid full re-embed). Equivalent to `symsearch:embed:generate --force`. Reindex once coverage recovers. |
+| **Refresh / verify pipeline** | Creates or updates the OpenSearch normalization pipeline from the current weights, and verifies the `opensearch-knn` / `opensearch-neural-search` plugins. Equivalent to `symsearch:pipeline:setup`. |
+
+**Staleness banner** — when embedding-affecting settings (Attributes To Embed, Model, or
+Dimensions) change after a successful embed run, a persistent admin banner appears prompting a
+Force re-embed. It clears once a Force re-embed completes (or after the first Generate on a
+fresh install). Both the panel's Force re-embed and `symsearch:embed:generate --force` (CLI)
+re-establish the drift baseline and clear the banner. The same signal is exposed as the stale
+indicator in `symsearch:embed:status`.
+
+> **Queue and cron must be running.** The buttons only schedule work — nothing is embedded
+> synchronously during the request. The consumer (`queue:consumers:start jalabsSymsearchEmbed`)
+> and the dispatch cron must be active to process the queued items.
+
+---
+
+## 6. First-time setup & backfill
 
 1. **Configure** the provider, API key, model, dimensions (§2). Set
    **Enable Module = Yes**. Leave **Storefront = No** for now.
@@ -154,20 +186,20 @@ backfill. Watch the rate limit — see §5.3.)
    **Storefront = Yes** on **one** store view and compare Mirasvit's
    zero-result rate over a week before expanding.
 
-### 5.1 Cost
+### 6.1 Cost
 Embedding the full catalog is a **one-time** cost of a few dollars at 512-dim
 (content-hash dedup means you pay per *unique* text, not per product×store).
 Steady-state cost is tiny (only changed products, and repeat live queries are
 Redis-cached for 14 days).
 
-### 5.2 Backfill scale
+### 6.2 Backfill scale
 A ~300k-product catalog × 3 store views backfills in a few hours on a single
 throttled consumer. EN/FR/AR views finish much faster than the first view if
 their product text is shared (dedup). Run the consumer in a dedicated shell or
 under supervisor; it's safe to run several in parallel **as long as** the
 combined rate stays under the provider's per-minute limit.
 
-### 5.3 Rate limits (important for Gemini)
+### 6.3 Rate limits (important for Gemini)
 Embedding providers limit **requests per minute**, and some count **each text in
 a batch as a separate request**. Gemini's paid tier is ~3,000 requests/min, and
 a batch of 96 texts = 96 requests — so an unthrottled consumer hits the ceiling
@@ -188,7 +220,7 @@ the nightly sweep) — dedup makes the retry nearly free.
 
 ---
 
-## 6. Day-2 operations
+## 7. Day-2 operations
 
 **Changing which attributes are embedded:** update *Attributes To Embed*, then
 `symsearch:embed:generate --force` (re-hashes everyone), run the consumer, then
@@ -204,7 +236,7 @@ dimension on rebuild). Budget for a full re-embed cost.
 query time.
 
 **Tuning relevance:** keep a curated `dev/symsearch/relevance-suite.csv` (see
-§7). Adjust weights / `k`, re-run the suite, compare. More keyword weight =
+§8). Adjust weights / `k`, re-run the suite, compare. More keyword weight =
 closer to stock behaviour; more semantic weight = more "fuzzy intent" matching.
 
 **Rollback:** set **Storefront = No** (instant, no reindex). Set **Module = No**
@@ -212,7 +244,7 @@ to also stop the indexing pipeline. Either way you're back to stock Mirasvit.
 
 ---
 
-## 7. The relevance regression suite
+## 8. The relevance regression suite
 
 `dev/symsearch/relevance-suite.csv` is a CSV of
 `query;expected_skus(pipe-separated);topN`. A row **passes** if **any** expected
@@ -231,7 +263,7 @@ caught even when keyword search would still return something generic.
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Symptom | Likely cause & fix |
 |---|---|
@@ -253,7 +285,7 @@ curl -s "localhost:9200/magento2_product_13_v*/_count" -H 'Content-Type: applica
 
 ---
 
-## 9. Quick reference
+## 10. Quick reference
 
 - **Config root:** `symsearch/*` (Stores → Config → JALabs → Semantic Search)
 - **Tables:** `jalabs_symsearch_item` (status), `jalabs_symsearch_vector` (vectors)

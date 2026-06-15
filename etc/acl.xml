@@ -6,7 +6,9 @@
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
-                            <resource id="JALabs_SymSearch::config" title="Semantic Search Configuration"/>
+                            <resource id="JALabs_SymSearch::config" title="Semantic Search Configuration">
+                                <resource id="JALabs_SymSearch::operations" title="Semantic Search Operations"/>
+                            </resource>
                         </resource>
                     </resource>
                 </resource>
